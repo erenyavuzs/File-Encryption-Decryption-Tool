@@ -27,3 +27,23 @@ def generate_key(password, salt_size=16, load_existing_salt=False, save_salt=Tru
             salt_file.write(salt)
     derived_key = derive_key(salt, password)
     return base64.urlsafe_b64encode(derived_key)
+
+
+def encrypt(filename, key):
+    f = Fernet(key)
+    with open(filename, "rb") as file:
+        file_data = file.read()
+    encrypted_data = f.encrypt(file_data)
+    with open(filename, "wb") as file:
+        file.write(encrypted_data)
+
+
+def decrypt(filename, key):
+    f = Fernet(key)
+    with open(filename, "rb") as file:
+        encrypted_data = file.read()
+    try:
+        decrypted_data = f.decrypt(encrypted_data)
+    except cryptography.fernet.InvalidToken:
+        print
+
