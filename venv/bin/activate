@@ -37,7 +37,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/erenyavuz/Desktop/File Encryption & Decryption Tool/venv"
+VIRTUAL_ENV="/Users/erenyavuz/Desktop/File-Encryption-Decryption-Tool/venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
