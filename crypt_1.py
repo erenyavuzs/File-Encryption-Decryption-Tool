@@ -1,5 +1,30 @@
+import argparse
+import base64
+import getpass
+import cryptography
 from cryptography.fernet import Fernet
-import os
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+import secrets
+
+def generate_salt(size=16):
+    return secrets.token_bytes(size)
+
+def derive_key(salt, password):
+    kdf = Scrypt(salt=salt, length=32, n=2**14, r=8, p=1)
+    return kdf.derive(password.encode())
+
+def load_salt():
+    return open("salt.salt", "rb").read()
+
+def generate_key(password, salt_size=16, load_existing_salt=False, save_salt=True):
+    if load_existing_salt:
+        salt = load_salt()
+    elif save_salt:
+        salt = generate_salt(salt_size)
+        with open("salt.salt", "wb") as salt_file:
+            salt_file.write(salt)
+    derived_key = derive_key(salt, password)
+    return base64.urlsafe_b64encode(derived_key)
 
 def write_key():
     key = Fernet.generate_key()
@@ -21,37 +46,41 @@ def decrypt(filename, key):
     f = Fernet(key)
     with open(filename, "rb") as file:
         encrypted_data = file.read()
-    decrypted_data = f.decrypt(encrypted_data)
-    with open(filename, "wb") as file:
-        file.write(decrypted_data)
+    try:
+        decrypted_data = f.decrypt(encrypted_data)
+        with open(filename, "wb") as file:
+            file.write(decrypted_data)
+        print("File successfully decrypted.")
+    except cryptography.fernet.InvalidToken:
+        print("Decryption error: The key or file might be invalid.")
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Simple File Encryptor Script")
+    parser = argparse.ArgumentParser(description="File Encryptor Script")
     parser.add_argument("file", help="File to encrypt/decrypt")
-    parser.add_argument("-g", "--generate-key", dest="generate_key", action="store_true",
-                        help="Whether to generate a new key or use existing")
+    parser.add_argument("-g", "--generate-key", action="store_true",
+                        help="Generate a new key (creates a key.key file)")
     parser.add_argument("-e", "--encrypt", action="store_true",
-                        help="Whether to encrypt the file, only -e or -d can be specified.")
+                        help="Encrypt the file")
     parser.add_argument("-d", "--decrypt", action="store_true",
-                        help="Whether to decrypt the file, only -e or -d can be specified.")
+                        help="Decrypt the file")
 
     args = parser.parse_args()
     file = args.file
-    generate_key = args.generate_key
 
-    if generate_key:
+    if args.generate_key:
         write_key()
-    key = load_key()
+        print("New key created and saved to key.key.")
+        exit()
 
-    encrypt_ = args.encrypt
-    decrypt_ = args.decrypt
+    if args.encrypt or args.decrypt:
+        key = load_key()
 
-    if encrypt_ and decrypt_:
-        raise TypeError("Please specify whether you want to encrypt the file or decrypt it.")
-    elif encrypt_:
-        encrypt(file, key)
-    elif decrypt_:
-        decrypt(file, key)
+        if args.encrypt and args.decrypt:
+            raise ValueError("Please specify only one action: encryption (-e) or decryption (-d).")
+        elif args.encrypt:
+            encrypt(file, key)
+            print(f"{file} successfully encrypted.")
+        elif args.decrypt:
+            decrypt(file, key)
     else:
-        raise TypeError("Please specify whether you want to encrypt the file or decrypt it.")
+        raise ValueError("Please specify an action: encryption (-e) or decryption (-d).")

@@ -27,9 +27,6 @@ def generate_key(password, salt_size=16, load_existing_salt=False, save_salt=Tru
     return base64.urlsafe_b64encode(derived_key)
 
 def encrypt(filename, key):
-    """
-    Given a filename (str) and key (bytes), it encrypts the file and write it
-    """
     f = Fernet(key)
     with open(filename, "rb") as file:
         file_data = file.read()
@@ -38,9 +35,6 @@ def encrypt(filename, key):
         file.write(encrypted_data)
 
 def decrypt(filename, key):
-    """
-    Given a filename (str) and key (bytes), it decrypts the file and write it
-    """
     f = Fernet(key)
     with open(filename, "rb") as file:
         encrypted_data = file.read()
