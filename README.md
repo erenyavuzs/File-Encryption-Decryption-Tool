@@ -12,7 +12,9 @@ Install the required packages by running:
 To see the available options and usage of the script, run:
 `python crypt.py --help`
 
-
+/br
+/br
+/br
 
 
 ## Encrypting and Decrypting Files
