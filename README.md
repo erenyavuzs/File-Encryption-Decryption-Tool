@@ -35,11 +35,14 @@ Encrypt `data.csv` using this new key.
 
 ### Decrypt a File
 To decrypt the file (make sure to use the same key that was used for encryption):
-`python crypt.py data.csv --decrypt`
+`python crypt_1.py data.csv --decrypt`
+
+<br>
+<br>
 
 ## Encrypt Another File Using the Same Key
 To encrypt another file using the previously generated key:
-`python crypt.py another_file --encrypt`
+`python crypt_1.py another_file --encrypt`
 
 <br>
 <br>
