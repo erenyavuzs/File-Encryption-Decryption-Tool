@@ -14,7 +14,6 @@ To see the available options and usage of the script, run:
 
 <br>
 <br>
-<br>
 
 
 ## Encrypting and Decrypting Files
